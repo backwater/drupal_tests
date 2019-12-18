@@ -13,5 +13,39 @@ but don't put localhost ! use the name of the db container ( in this case docker
 
 
 
+NOTE SOME HINTS ON THE ERROR: 
 
+lock_may_be_available() (line 167 of C:\wamp\www\drupal7\includes\lock.inc).
+
+// https://www.drupal.org/forum/support/installing-drupal/2014-06-04/pdoexception-in-lock_may_be_available-line-167-of
+
+NOTE - TO DEAL WITH THE ABOVE PROBLEM: 
+
+https://www.drupal.org/forum/support/installing-drupal/2014-06-04/pdoexception-in-lock_may_be_available-line-167-of
+
+{ a post near the bottom of the page }
+My problem is due to MySQL 5.7 does not allow root user to access a database from client app. After switching to a normal user, problem solved.
+
+{ another post }
+Same here; problem with root
+no74h commented 6 months ago
+Same here; problem with root access, after creating a new user and grant all necessary privileges and updated settings.php everything is good.
+
+
+
+  
+create user 'danc'@'%' identified by 'example';
+grant all privileges on *.* to 'danc'@'%' with grant option;
+flush privileges;
+
+So I did the above user creation to resolve the semaphore lock issue. Note that I also replaced my entire Drupal codebase with a new one.
+Once I did that, everything started up fine, with no lock errors.
+
+
+
+
+
+https://stackoverflow.com/questions/34773555/exporting-data-from-mysql-docker-image
+
+docker exec docker_drupal2_mysql_1 /usr/bin/mysqldump -u danc --password=example drupal_dwc_local > drupal_dwc_local_backup_12_18_2019.sql // works ! pulls db from running docker container
 

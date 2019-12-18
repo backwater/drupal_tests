@@ -44,28 +44,3 @@ docker exec -it 4288a0ff1ac8  /bin/bash
 
 
 
-NOTE SOME HINTS ON THE ERROR: 
-
-lock_may_be_available() (line 167 of C:\wamp\www\drupal7\includes\lock.inc).
-
-// https://www.drupal.org/forum/support/installing-drupal/2014-06-04/pdoexception-in-lock_may_be_available-line-167-of
-
-NOTE - TO DEAL WITH THE ABOVE PROBLEM: 
-
-https://www.drupal.org/forum/support/installing-drupal/2014-06-04/pdoexception-in-lock_may_be_available-line-167-of
-
-{ a post near the bottom of the page }
-My problem is due to MySQL 5.7 does not allow root user to access a database from client app. After switching to a normal user, problem solved.
-
-{ another post }
-Same here; problem with root
-no74h commented 6 months ago
-Same here; problem with root access, after creating a new user and grant all necessary privileges and updated settings.php everything is good.
-
-
-
-  
-create user 'danc'@'%' identified by 'example';
-grant all privileges on *.* to 'danc'@'%' with grant option;
-flush privileges;
-
