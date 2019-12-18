@@ -1,0 +1,4 @@
+name = Junior Bruins Event Team Members
+description = A module that manages Junior Bruins team members for different JRB teams.
+core = 7.x
+dependencies[] = entity

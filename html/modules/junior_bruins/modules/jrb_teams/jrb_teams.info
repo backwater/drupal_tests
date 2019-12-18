@@ -1,0 +1,4 @@
+name = Junior Bruins Event Teams 
+description = A module that manages Junior Bruins teams for different hockey events.
+core = 7.x
+dependencies[] = entity

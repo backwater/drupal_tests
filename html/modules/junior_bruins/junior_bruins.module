@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * Implements hook_entity_info().
+ */
+function junior_bruins_info() {
+  
+  $info = array();
+  
+  $info['junior_bruins'] = array(
+    'label' => t('Junior Bruins'),
+   // 'uri callback' => 'entity_class_uri',
+     'admin ui' => array(
+     'path' => 'admin/junior_bruins',
+     //'controller class' => 'EntityDefaultUIController',
+    ),
+    'fieldable' => TRUE,
+    'bundles' => array(
+      'junior_bruins' => array(
+        'label' => t('Junior Bruins'),
+        'admin' => array(
+          'path' => 'admin/junior_bruins',
+        ),
+      ),
+    ),
+    'module' => 'junior_bruins',
+  );
+  
+  return $info;
+}
+
+/**
+ * Implements hook_menu()
+ */
+ 
+function junior_bruins_menu() {
+  $items = array();
+  
+  $items['admin/junior_bruins'] = array(
+    'title' => 'Junior Bruins',
+    'page callback' => 'show_bruins_menu',
+    'access arguments' => array('access content'),
+  );
+  
+  return $items;
+}
+
+
+function show_bruins_menu() {
+ 
+  $output =   '<ul class="admin-list">';
+  $output .=    '<li class="leaf"><a href="/admin/jrb-teams">Junior Bruins Teams</a></li>';
+  $output .=    '<li class="leaf"><a href="/admin/jrb-team-members">Junior Bruins Team Members</a></li>';
+  $output .=  '</ul>';
+  return $output;	
+	
+}
+
+

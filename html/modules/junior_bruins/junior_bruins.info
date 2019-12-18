@@ -1,0 +1,4 @@
+name = Junior Bruins
+description = A module that wraps the custom Junior Bruins entities; teams, team members, and coaches.
+core = 7.x
+dependencies[] = entity

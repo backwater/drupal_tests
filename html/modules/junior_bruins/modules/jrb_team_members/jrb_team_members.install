@@ -1,0 +1,317 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function jrb_team_members_schema() {
+  
+  // entity_info_cache_clear(); // sometimes this can help if you get - during a callback function on a recently installed entity with the error:
+  // PHP Fatal error: Class name must be a valid object or a string in drupal-7.14/includes/common.inc on line 7680
+  
+  $schema = array();
+   
+  $schema['jrb_team_members'] = array(
+
+    'description' => 'The base table for the Junior Bruins Team Members',
+    
+    'fields' => array(
+		  'team_member_id' => array(
+			'description' => 'Primary ID of the JR Bruins team members',
+			'type' => 'serial',
+			'unsigned' => TRUE,
+			'not null' => TRUE,
+		  ),
+		  'team_member_name' => array(
+			'description' => 'Team member name.',
+			'type' => 'varchar',
+			'length' => 255,
+			'not null' => FALSE,
+		  ),
+		  'team_member_description' => array(
+			'description' => 'Team member description.',
+			'type' => 'text',
+			'size' => 'big',
+			'not null' => FALSE,
+			'default' => NULL
+		  ),
+
+   
+      'team_member_team' => array(
+      'description' => 'Team list.',
+      //'type' => 'list_text',
+      'type' => 'text',
+      'not null' => FALSE,
+      'default' => NULL
+      )  
+    ),
+
+    'primary key' => array('team_member_id')
+  );
+  
+  return $schema;
+}
+
+
+
+
+/**
+ * @file
+ * Mott Customer Info installation
+ */
+
+/**
+ * Implements hook_install().
+ */
+ 
+function jrb_team_members_install() { 
+ // Check if our field is not already created.
+
+  
+   $t = get_t();
+	
+  drupal_set_message($t('Creating team member fields ...'));
+
+  drupal_set_message($t('DEBUG 1'));
+  
+ 
+  if (!field_info_field('field_jrb_team_members_team_id')) {
+	  
+    $field = array(
+      'field_name' => 'field_jrb_team_members_team_id',
+      'type' => 'text',
+	  'cardinality' => -1, // this enables unlimited team ids to be assigned to a given team member
+      'locked' => FALSE, // Settings can be changed
+      'settings' => array(
+        'no_ui' => FALSE, // Field *is* visible in field UI and can be instantiated programmatically or manually
+      ),
+    );
+    field_create_field($field);
+	
+  }
+ 
+ 
+  drupal_set_message($t('DEBUG 2'));
+
+  if (!field_info_field('field_jrb_team_members_team_name')) {
+    $field = array(
+      'field_name' => 'field_jrb_team_members_team_name',
+      'type' => 'text',
+	  'cardinality' => -1, // this enables unlimited team ids to be assigned to a given team member
+      'locked' => FALSE, // Settings can be changed
+      'settings' => array(
+        'no_ui' => FALSE, // Field is visible in field UI and can be instantiated programmatically or manually
+      ),
+    );
+    field_create_field($field);
+	
+  }
+
+
+    drupal_set_message($t('DEBUG 3'));
+
+
+  
+   if (!field_info_field('field_jrb_team_members_team')) {
+    $field = array(
+      'field_name' => 'field_jrb_team_members_team',
+      'type' => 'list_text',
+    'cardinality' => 1, // allow unlimited options
+      'locked' => FALSE, // Settings can be changed
+      'settings' => array(
+
+        /*
+ 
+
+          // https://www.drupal.org/docs/7/api/field-api/field-types-and-settings
+
+          you probably need to add field settings at this spot: 
+          
+          Field settings
+          allowed_values (list_integer, list_float, list_text only.)
+          allowed_values[on] and allowed_values[off] (list_boolean)
+
+        */
+
+
+        'no_ui' => FALSE, // Field is visible in field UI and can be instantiated programmatically or manually
+      )
+    );
+
+
+    if  ( field_create_field($field) ) 
+    {
+
+      //echo "Team members team field created!!";
+
+    }
+    else {
+
+        // echo "No team member team field could be created. ";
+
+
+    } 
+  
+  }
+
+
+ 
+
+
+
+
+  drupal_set_message($t('Creating team member ID and name instances...'));
+ 
+ // Create the instance on the bundle.
+    $instance = array(
+      'field_name' => 'field_jrb_team_members_team_id',
+      'entity_type' => 'jrb_team_members',
+      'bundle' => 'jrb_team_members', // If your entity does not have bundles, this is the same as the entity type.
+      'label' => 'Associated Team ID',
+      'required' => FALSE, // Field must have a value.
+      'widget' => array(
+        'type' => 'text_textfield',
+      ),
+    );
+    field_create_instance($instance);
+ 
+ 
+
+    // Create the instance on the bundle.
+	
+    $instance = array(
+      'field_name' => 'field_jrb_team_members_team_name',
+      'entity_type' => 'jrb_team_members',
+      'bundle' => 'jrb_team_members', // If your entity does not have bundles, this is the same as the entity type.
+      'label' => 'Associated Team Name',
+	  'cardinality' => -1, // this enables unlimited team names to be assigned to a given team member
+      'required' => FALSE, // Field must have a value.
+      'widget' => array(
+        'type' => 'text_textfield',
+      ),
+    );
+    field_create_instance($instance);
+  
+  
+  
+    $instance = array(
+      'field_name' => 'field_jrb_team_members_team',
+      'entity_type' => 'jrb_team_members',
+      'bundle' => 'jrb_team_members', // If your entity does not have bundles, this is the same as the entity type.
+      'label' => 'Associated Team List',
+    'cardinality' => 1, // this enables unlimited team names to be assigned to a given team member
+      'required' => FALSE, // Field must have a value.
+      'options' => array(
+                         '0' => 'Team 1',
+                         '1' => 'Team 2',
+                         '1' => 'Team 3'
+                        ),
+      'widget' => array(
+      'type' => 'options_select',
+    ),
+    );
+
+    if ( field_create_instance($instance) ) {
+
+
+         drupal_set_message($t('JRB Team member team field created!!'));
+
+    }
+    else {
+
+
+         drupal_set_message($t('JRB Team member team field NOT created!!'));
+    }
+    
+
+
+
+
+  drupal_set_message($t('JRB Team member fields created.'));
+ }
+ 
+
+
+/**
+ * Implements hook_uninstall().
+ */
+ 
+ 
+function jrb_team_members_uninstall() {
+ 
+ $t = get_t();
+
+ 
+ drupal_set_message($t('Trying to uninstall JRB Team Members....'));
+ 
+  // Delete variables.
+ // variable_del('some_variable_gmap');
+ // variable_del('some_other_variable');
+
+
+  // Inform the user of the removal.
+  
+  drupal_set_message($t('JRB team members removed.'));
+
+
+
+ if(db_table_exists('jrb_team_members')) {
+
+   $sql_query  = 'DROP TABLE jrb_team_members';
+  // $sql_query .= 'FROM {jrb_team_members}';
+  //$result = db_query($sql_query, array(':type' => 'mott_customer_info'));
+   $result = db_query($sql_query);
+  
+ }
+
+  drupal_set_message($t('JRB team member content removed.'));
+
+  // Remove all fields and field instances.
+ // foreach (field_info_instances('node', 'mott_customer_info') as $field_name => $instance) {
+   
+    db_update('field_config_instance')
+    ->fields(array('deleted' => 1))
+    ->condition('field_name','field_jrb_team_members_team_name')
+    ->condition('entity_type', 'jrb_team_members')
+    ->condition('bundle', 'jrb_team_members')
+    ->execute();
+
+
+  db_update('field_config_instance')
+    ->fields(array('deleted' => 1))
+    ->condition('field_name','field_jrb_team_members_team_id')
+    ->condition('entity_type', 'jrb_team_members')
+    ->condition('bundle', 'jrb_team_members')
+    ->execute();
+
+
+     db_update('field_config_instance')
+    ->fields(array('deleted' => 1))
+    ->condition('field_name','field_jrb_team_members_team')
+    ->condition('entity_type', 'jrb_team_members')
+    ->condition('bundle', 'jrb_team_members')
+    ->execute();
+
+
+
+  // Clear the cache.
+  field_cache_clear();
+   
+  field_delete_field('field_jrb_team_members_team_name');
+  field_delete_field('field_jrb_team_members_team_id');
+
+  field_delete_field('field_jrb_team_members_team');
+
+
+  
+        // instance_delete_instance('field_revision_jrb_team_member_team_name');
+ 
+  
+  drupal_set_message($t('JRB team member fields and field instances removed.'));
+
+  // Delete the content type.
+  //node_type_delete('mott_customer_info');
+  drupal_set_message($t('JRB team member entity type removed.'));
+
+  // Clean up deleted fields.
+  field_purge_batch(1000);
+}

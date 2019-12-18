@@ -1,0 +1,338 @@
+<?php
+//https://www.sitepoint.com/build-custom-entities-drupal-setup/
+/**
+ * Implements hook_entity_info().
+ */
+function jrb_teams_entity_info() { 
+
+/* 
+   mandatory. if you don't have this hook function, the module will install, but then you'll throw weird entity info errors when 
+  trying to apply CRUD to your custom entity  //dc
+*/
+
+  $info = array();
+  
+  
+  $info['jrb_teams'] = array(
+    'label' => t('JRB Team'),
+    'base table' => 'jrb_teams',
+    'entity keys' => array(
+      'id' => 'team_id',  // WATCH OUT HERE 
+      'label' => 'team_name',
+    ),
+	
+	
+	'entity class' => 'JrbTeamsEntity',
+    'controller class' => 'JrbEntityController',
+	'access callback' => 'jrb_teams_access_callback',
+    'uri callback' => 'entity_class_uri',
+	'admin ui' => array(
+                        'path' => 'admin/jrb-teams',
+                        'file' => '',
+                        'controller class' => 'EntityDefaultUIController',
+                        ),
+	'fieldable' => TRUE,
+    'bundles' => array(
+                       'jrb_teams' => array(
+                                            'label' => t('Junior Bruins Teams'),
+                                            'admin' => array(
+                                            'path' => 'admin/jrb-teams',
+                                         ),
+                        ),
+       ),					
+	  'views controller class' => 'EntityDefaultViewsController',
+	  'module' => 'jrb_teams',
+   );
+  
+  return $info;
+  
+}
+
+/**
+ * Implements hook_menu()
+ */
+function jrb_teams_menu() {
+  
+  $items = array();
+  
+  $items['jrb-teams'] = array(
+    'title' => 'JB Teams',
+    'page callback' => 'jrb_teams_test',
+    'access arguments' => array('access content'),
+	'menu_name' => 'jrb-teams-menu',
+	'type' => MENU_NORMAL_ITEM,
+  );
+  
+  	         // note the wildcard url variable below. will pass a team id
+	$items['jrb-teams/%'] = array(
+    'title' => 'Junior Bruins Event Team',
+    'page callback' => 'jrb_teams_view_team',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+  );
+
+  
+  return $items;
+}
+
+/*
+
+ SQL FOR EMPTYING ALL OF DRUPALS CACHES 
+ 
+TRUNCATE TABLE cache;
+TRUNCATE TABLE cache_block;
+TRUNCATE TABLE cache_bootstrap;
+TRUNCATE TABLE cache_field;
+TRUNCATE TABLE cache_filter;
+TRUNCATE TABLE cache_form;
+TRUNCATE TABLE cache_image;
+TRUNCATE TABLE cache_menu;
+TRUNCATE TABLE cache_page;
+TRUNCATE TABLE cache_path;
+TRUNCATE TABLE cache_update;
+
+*/
+
+
+
+/**
+ * Callback function for displaying the individual jrb teams page
+ */
+function jrb_teams_view_team($id) {
+ 
+  //echo __METHOD__;exit;
+ 
+  $jrb_teams = entity_load('jrb_teams', array($id));
+  $jrb_teams = $jrb_teams[$id];
+
+  //print_r($jrb_teams); exit;
+
+  drupal_set_title($jrb_teams->team_name);
+  $output = entity_view('jrb_teams', array($jrb_teams));
+
+ 
+
+
+  return $output; // NOTE - this outputs content to display an individual team once you've clicked on it in the listing
+   // it does not output the initial team listing itself
+
+}
+
+
+/**
+ * Form definition for adding / editing a jrb team.
+ */
+function jrb_teams_form($form, &$form_state, $jrb_teams = NULL) {
+
+  $form['team_name'] = array(
+    '#title' => t('Team name'),
+    '#type' => 'textfield',
+    '#default_value' => isset($jrb_teams->team_name) ? $jrb_teams->team_name : '',
+    '#required' => TRUE,
+  );
+
+  $form['team_description'] = array(
+    '#title' => t('Team description'),
+    '#type' => 'textarea',
+    '#default_value' => isset($jrb_teams->team_description) ? $jrb_teams->team_description : '',
+    '#required' => TRUE,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit', 
+    '#value' => isset($jrb_teams->team_id) ? t('Update team') : t('Save team'),
+    '#weight' => 50,
+  );
+
+  return $form;
+
+}
+
+
+/**
+ * Submit handler for the jrb_teams add/edit form.
+ */
+ 
+function jrb_teams_form_submit($form, &$form_state) {
+  $jrb_teams = entity_ui_form_submit_build_entity($form, $form_state);
+  $jrb_teams->save();
+  drupal_set_message(t('The team: @name has been saved.', array('@name' => $jrb_teams->team_name)));
+  $form_state['redirect'] = 'admin/jrb-teams';
+}
+
+
+/**
+ * Access callback for project entities.
+ */
+function jrb_teams_access_callback($op, $jrb_teams = NULL, $account = NULL) {
+  if ($op == 'view' || $op == 'update' || $op == 'create' || $op == 'delete') {
+    
+	//echo $op ;  // this seems to be called on all clicks that are a 'view' request, regardless of modules you want to view
+	return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+
+/**
+ * Implements hook_entity_property_info().
+ */
+function jrb_teams_entity_property_info() {
+  
+  $info = array();
+  
+  $info['jrb_teams']['properties']['team_id'] = array(
+    'label' => t('Team ID'),
+    'description' => t('The ID of the team.'),
+    'type' => 'integer',
+    'schema field' => 'team_id',
+  );
+
+  $info['jrb_teams']['properties']['team_name'] = array(
+    'label' => t('Team name'),
+    'description' => t('Name of the team.'),
+    'type' => 'text',
+    'schema field' => 'team_name',
+  );
+  
+  $info['jrb_teams']['properties']['team_description'] = array(
+    'label' => t('Team description'),
+    'description' => t('Description of the team.'),
+    'type' => 'text',
+    'schema field' => 'team_description',
+  );
+  
+  
+  return $info;
+}
+
+
+
+
+/**
+ * Callback function for our project entities test path
+ */
+function jrb_teams_test() { 
+//this outputs display for http://drupal_ecommerce.com/jrb_teams/  and NOT the admin overlay list version of the url,
+// which is http://drupal_ecommerce.com/jrb_teams/#overlay=admin/jrb_teams
+ 
+  //echo __METHOD__; exit;
+ 
+  $jrb_teams = entity_load('jrb_teams', array(1, 2, 3));
+  
+  //$jrb_team_member = entity_load('jrb_team_members', array(1)); // note team members module works fine here
+ //print_r($jrb_team_member);
+ // echo "jrb teams AND team members entities  loaded fine"; exit;
+  
+  
+  // Saving new entities 
+  if (!isset($jrb_teams[3])) {
+    $entity = entity_create('jrb_teams', array('id' => 3));
+    $entity->team_name = t('The Nutty Pucks');
+    $entity->team_description = t('A nutty bunch of hockey players.');
+
+    $entity->save();
+  }
+  
+  // Listing entities
+  $list = entity_view('jrb_teams', $jrb_teams);
+  
+  $output = array();
+  foreach ($list['jrb_teams'] as $jrb_team) {
+    $output[] = drupal_render($jrb_team); // activates the build content function below in the controller ? //dc
+  }
+  
+  print_r($output);exit;
+  
+  
+  return implode($output);
+
+}
+
+/**
+   * Extending the EntityAPIController for the Project entity.
+ */
+  class JrbEntityController extends EntityAPIController { // NOTE MAKE SURE THIS AGREES WITH THE CONTROLLER DEFINTION IN ENTITY INFO 
+    
+    public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) { 
+	
+	// this function is only called when you click on a given, listed entity like Team 1 edit, delete, ect.
+  
+      $build = parent::buildContent($entity, $view_mode, $langcode, $content);
+      
+      // Our additions to the $build render array.
+      $build['team_description'] = array(
+        '#type' => 'markup',
+        '#markup' => check_plain($entity->team_description),
+        '#prefix' => '<div class="team-description">',
+        '#suffix' => '</div>'
+      );
+	  
+	  /*
+	     NOTE !! The above will output the html : 
+		 
+		 <div class="entity entity-jrb-teams jrb-teams-jrb-teams clearfix" about="" typeof="">
+
+             <h2>Winter Team 1 </h2>
+             <div class="content">
+                <div class="team-description">A crazy, winter Christmas team.</div>  
+		     </div>
+         </div> 
+	  */
+	  
+      /*
+	  $build['deadline'] = array(
+        '#type' => 'markup',
+        '#markup' => date('d F, Y', check_plain($entity->deadline)),
+        '#prefix' => '<p>Deadline: ',
+        '#suffix' => '</p>',
+      );
+	  */
+      
+      return $build;
+    
+    } 
+  }
+  
+/**
+ * Project entity class extending the Entity class
+ */
+class JrbTeamsEntity extends Entity {
+  
+  /**
+   * Change the default URI from default/id to project/id
+   */
+  protected function defaultUri() {
+	
+	//echo "this identifier is " .$this->identifier(); 
+	// the given id of the entity ; will loop through all when displaying a given list of all jrb_teams entities
+	 // echo __METHOD__;exit;
+	  
+    return array('path' => 'jrb_teams/' . $this->identifier());
+  }
+  
+}  
+
+
+
+/**
+ * Implements hook_help().
+ */
+function jrb_teams_help($path, $arg) { 
+ /* this will output the below throughout the entire site menus, unless wrapped in a url conditional
+    see the help module for more info
+  */
+ 
+      //$output =    "<a> Test Link 1 - output via jrb_teams_help hook </a>" . "<br/>";
+	  // $output .= "<a> Test Link 2 </a>";
+ 
+      //return $output;
+	
+ // }
+}
+
+
+
+

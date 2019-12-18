@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function junior_bruins_install() {
+
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function junior_bruins_uninstall() {
+
+}

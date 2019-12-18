@@ -1,0 +1,562 @@
+<?php
+//https://www.sitepoint.com/build-custom-entities-drupal-setup/
+/**
+ * Implements hook_entity_info().
+ */
+function jrb_team_members_entity_info() { 
+
+/* 
+   mandatory. if you don't have this hook function, the module will install, but then you'll throw weird entity info errors when 
+  trying to apply CRUD to your custom entity  //dc
+*/
+
+  $info = array();
+  
+  
+  
+  $info['jrb_team_members'] = array(
+		'label' => t('Junior Bruins Team Member'),
+		'base table' => 'jrb_team_members',
+		'entity keys' => array(
+		    'id' => 'team_member_id', 
+		    'label' => 'team_member_name'
+    ),
+	
+	'entity class' => 'JrbTeamMembersEntity',
+    'controller class' => 'JrbTeamMembersEntityController',
+	'access callback' => 'jrb_team_members_access_callback',
+	'uri callback' => 'entity_class_uri',
+	'admin ui' => array(
+           'path' => 'admin/jrb-team-members',
+           'file' => '',
+           // OPTIONAL- See "Customize the User Interface" below if you set.
+           'controller class' => 'EntityDefaultUIController',
+     ),
+    'fieldable' => TRUE,
+    'bundles' => array(
+                       'jrb_team_members'=> array(
+                                                   'label' => t('Junior Bruins Team Members'),
+                                                   'admin' => array(
+                                                                   'path' => 'admin/jrb-team-members',
+                                                                  ),
+                        ),
+       ),
+	   					
+	  'views controller class' => 'EntityDefaultViewsController',
+      'module' => 'jrb_team_members',
+  );
+
+
+  return $info;
+  
+  
+  
+}
+
+
+
+/**
+ * Implements hook_menu()
+ */
+function jrb_team_members_menu() {
+  
+  $items = array();
+ 
+  $items['jrb-team-members'] = array(
+    'title' => 'Junior Bruins Team Members',
+    'page callback' => 'team_members_test',
+    'access arguments' => array('access content'),
+    'menu_name' => 'jrb-team-member-menu',
+	'type' => MENU_NORMAL_ITEM,
+  );
+  
+  
+  $items['create-team-member'] = array(
+    'title' => 'Junior Bruins Create Team Member',
+    'page callback' => 'create_team_member',
+    'access arguments' => array('access content'),
+    'menu_name' => 'jrb-team-member-menu',
+	'type' => MENU_NORMAL_ITEM,
+  );
+  
+   $items['assign-team-to-member'] = array(
+    'title' => 'Junior Bruins Assign Member to Team',
+    'page callback' => 'assign_team_to_member',
+    'access arguments' => array('access content'),
+    'menu_name' => 'jrb-team-member-menu',
+	'type' => MENU_NORMAL_ITEM,
+  );
+  
+  
+   $items['team-member/%'] = array(
+    'title' => 'Junior Bruins Team Members',
+    'page callback' => 'jrb_team_members_view_team_member',
+	'page arguments' => array(1),
+	'access callback' => 'some_access_check_function',
+    'access arguments' => array('access content'),
+    'menu_name' => 'jrb-team-member-menu',
+	'type' => MENU_NORMAL_ITEM,
+  );
+  
+  // http://drupal.stackexchange.com/questions/62473/how-should-i-implement-hook-menu
+  
+   /*
+  
+  	 // note the wildcard url variable below. will pass a team id
+	$items['jrb_team_members/%'] = array(
+    'title' => 'Junior Bruins Team Member',
+    'page callback' => 'jrb_teams_view_team',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+  );
+  */
+  
+  return $items;
+}
+
+function some_access_check_function() {
+	//echo __METHOD__;
+	return true;
+}
+
+/*
+
+ SQL FOR EMPTYING ALL OF DRUPALS CACHES 
+ 
+TRUNCATE TABLE cache;
+TRUNCATE TABLE cache_block;
+TRUNCATE TABLE cache_bootstrap;
+TRUNCATE TABLE cache_field;
+TRUNCATE TABLE cache_filter;
+TRUNCATE TABLE cache_form;
+TRUNCATE TABLE cache_image;
+TRUNCATE TABLE cache_menu;
+TRUNCATE TABLE cache_page;
+TRUNCATE TABLE cache_path;
+TRUNCATE TABLE cache_update;
+
+*/
+
+
+
+/**
+ * Callback function for displaying the individual jrb teams page
+ */
+function jrb_team_members_view_team($id) {
+ 
+  $jrb_team_members = entity_load('jrb_team_members', array($id));
+  
+  $jrb_team_members = $jrb_team_members[$id];
+
+  drupal_set_title($jrb_team_members->team_member_name);
+  $output = entity_view('jrb_team_members', array($jrb_team_members));
+
+  return $output; // NOTE - this outputs content to display an individual team once you've clicked on it in the listing
+   // it does not output the initial team listing itself
+
+}
+
+
+
+
+/**
+ * Form definition for adding / editing a jrb team.
+ */
+function jrb_team_members_form($form, &$form_state, $jrb_team_members = NULL) {
+
+  $form['team_members_name'] = array(
+    '#title' => t('Team Member name'),
+    '#type' => 'textfield',
+    '#default_value' => isset($jrb_team_members->team_member_name) ? $jrb_team_members->team_member_name : '',
+    '#required' => TRUE,
+  );
+
+  $form['team_members_description'] = array(
+    '#title' => t('Team member description'),
+    '#type' => 'textarea',
+    '#default_value' => isset($jrb_team_members->team_member_description) ? $jrb_team_members->team_member_description : '',
+    '#required' => TRUE,
+  );
+
+
+
+  $form['team_members_team'] = array(
+    '#title' => t('Teams'),
+    '#type' => 'list_text',
+    '#default_value' => 'Team One',
+    '#required' => TRUE,
+  );
+
+  
+  
+  /*
+  
+   $form['jrb_team_member_team_name'] = array(
+    '#title' => t('Team member team name'),
+    '#type' => 'textfield',
+    '#default_value' => isset($jrb_team_members->team_member_team_name) ? $jrb_team_members->team_member_team_name : '',
+    '#required' => FALSE,
+  );
+  
+  
+    $form['team_id'] = array(
+    '#title' => t('Team member team ID'),
+    '#type' => 'textfield',
+    '#default_value' => isset($jrb_team_members->team_member_team_name) ? $jrb_team_members->team_id : '',
+    '#required' => FALSE,
+  );
+  */
+  
+  
+  field_attach_form('jrb_team_members', $jrb_team_members, $form, $form_state);
+  
+
+  $form['submit'] = array(
+    '#type' => 'submit', 
+    '#value' => isset($jrb_team_members->team_member_id) ? t('Update team member') : t('Save team member'),
+    '#weight' => 50,
+  );
+
+  return $form;
+
+}
+
+
+/**
+ * Submit handler for the jrb_teams add/edit form.
+ */
+ 
+function jrb_team_members_form_submit($form, &$form_state) {
+	
+	
+	//print_r($form);exit;
+	
+  $jrb_team_members = entity_ui_form_submit_build_entity($form, $form_state);
+  $jrb_team_members->save();
+  //drupal_set_message(t('The team member: @name has been saved.', array('@name' => $jrb_team_members->field_team_member_team_name)));
+  $form_state['redirect'] = 'admin/jrb-team-members';
+}
+
+
+/**
+ * Access callback for project entities.
+ */
+function jrb_team_members_access_callback($op, $jrb_team_members = NULL, $account = NULL) {
+  if ($op == 'view' || $op == 'update' || $op == 'create' || $op == 'delete') {
+    
+	//echo $op ; exit; // this seems to be called on all clicks that are a 'view' request, regardless of modules you want to view
+	return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+
+
+
+
+
+
+function create_team_member($value_array=NULL) {
+   
+   
+   
+  $entity = entity_create('jrb_team_members',array('team_member_id' =>'')); 
+	$entity->team_member_name = t('Rick Spotter');
+	$entity->team_member_description = t('This is another description Rick.');	
+	
+	$entity->save();
+	
+
+  exit; //dwc
+   
+   
+  global $user;
+   
+  $values = array(
+				  'type' => 'jrb_team_member',
+				  'uid' => $user->uid,
+				  'status' => 1,
+				  'comment' => 1,
+				  'promote' => 0,
+				);
+				
+			
+			
+			
+	$entity = entity_create('jrb_team_members', $values);
+	
+	
+	//$entity->team_member_name = 'YO'; //works 
+	
+	$entity->save();
+	
+	
+	//exit;
+   	
+				// The entity is now created, but we have not yet simplified use of it.
+				// Now create an entity_metadata_wrapper around the new node entity
+				// to make getting and setting values easier
+				
+	$team_member_name = 'Mitch Vortex';		
+	
+	
+	//echo $entity->team_member_id;exit;
+	// SEE : http://drupal.stackexchange.com/questions/69728/how-to-fix-entity-property-x-doesnt-support-writing-when-setting-content-type
+				
+	$team_member_wrapper = entity_metadata_wrapper('jrb_team_members', $entity);
+				
+	$team_member_wrapper->team_member_name->set($team_member_name);
+				
+	$team_member_wrapper->save(true);								
+	
+}
+
+
+
+
+function assign_team_to_member($team_member_id=null,$team_id=null) {
+	
+	$team_member_id = 1;
+	$team_id = 1;
+	$team_id_array = array(1,2);
+	$team_name_array = array('The Mega Ducks', 'The Mighty Squints');
+	
+	//$team_entity_wrapper = entity_metadata_wrapper('jrb_teams', $team_id);
+	//$team_name = $team_entity_wrapper->team_name->value(); 
+	
+   	$entity_wrapper = entity_metadata_wrapper('jrb_team_members', $team_member_id);
+
+	$entity_wrapper->field_jrb_team_members_team_id->set($team_id_array);
+	
+	
+	//$entity_wrapper->save(true);
+	
+	//echo "team name is: ".  $team_name; exit;
+
+	
+	
+	/*  NOTE !! 
+	    IN ASSOCIATED TEAM NAME FIELD SETTINGS
+        If you change the "Number of Values" select to 'unlimited' then 
+		$entity_wrapper->field_jrb_team_members_team_name->set() will need to be passed an *array* not a single value, which makes sense
+	     
+		*** that's why I was getting Entity dataype errors when I changed the field cardinality in the CMS
+	   
+	   
+	    and you can set this programatically by using the cardinality attribute of the field: s
+	   
+	   // https://www.drupal.org/node/1287466
+	   
+	   
+	   Normally you set the number of fields to show when creating the content type definition. 
+	   This can either be achieved through the UI or programmatically in the case that you are 
+	   defining the content type within a module.
+
+      The following is the content of a module install file ("namecards_namecard.install") showing how to set cardinality. 
+	  
+	  *****A value of "-1" represents 'unlimited'. *****
+	  
+	   Use a positive value to set a specific number of fields. This is used as part of defining the content type within a module.
+	   
+	   
+	   example: 
+	   
+	   function _create_field_collection() {
+               $t = get_t();
+  
+					  $fields_array = array(
+						   
+				   array(
+						  'field' => array(
+							'field_name' => 'bir_collection_node',
+							'type' => 'node_reference',
+							'label' => '',
+							'cardinality' => -1,
+							'settings' => array(
+							  'referenceable_types' => array(
+								'bir_specimen' => 'bir_specimen',
+								'bir_image' => 'bir_image',
+								'bir_locality' => 'bir_locality',
+								'bir_view' => 'bir_view',
+							  ),
+							),
+						  ),
+	        // another field array item, ect,
+	   
+	*/
+	
+	$entity_wrapper->field_jrb_team_members_team_name->set($team_name_array); //works as a multiple insert
+	// just make sure this field cardinality is set to '-1' during module install 
+	                 
+	$entity_wrapper->save(true);
+	
+	echo "team assigned to team member"; exit;
+	
+}
+
+
+/**
+ * Callback function for displaying the individual jrb teams page
+ */
+function jrb_team_members_view_team_member($id) {
+ 
+  //echo __METHOD__;exit;
+ 
+  $jrb_team_member = entity_load('jrb_team_members', array($id));
+  $jrb_team_member = $jrb_team_member[$id];
+
+  //print_r($jrb_teams); exit;
+
+  drupal_set_title($jrb_team_member->team_member_name);
+  $output = entity_view('jrb_team_members', array($jrb_team_member));
+
+  return $output; // NOTE - this outputs content to display an individual team once you've clicked on it in the listing
+   // it does not output the initial team listing itself
+
+}
+
+
+
+
+
+
+
+/**
+ * Implements hook_entity_property_info().
+ */
+function jrb_team_members_entity_property_info() {
+  
+  $info = array();
+  
+  $info['jrb_team_members']['properties']['team_member_id'] = array(
+    'label' => t('Team Member ID'),
+    'description' => t('The ID of the team member.'),
+    'type' => 'integer',
+    'schema field' => 'team_members_id',
+  );
+
+  $info['jrb_team_members']['properties']['team_member_name'] = array(
+    'label' => t('Team Member name'),
+    'description' => t('Name of the team member.'),
+    'type' => 'text',
+    'schema field' => 'team_members_name',
+  );
+  
+  $info['jrb_team_members']['properties']['team_member_description'] = array(
+    'label' => t('Team Member description'),
+    'description' => t('Description of the team member.'),
+    'type' => 'text',
+    'schema field' => 'team_members_description',
+  );
+
+
+
+  
+    $info['jrb_team_members']['properties']['team_members_team'] = array(
+    'label' => t('Team Member Team'),
+    'description' => t('The Team Members Teams.'),
+    'type' => 'text_list',
+    'schema field' => 'team_members_team',
+  );
+  
+  
+  
+
+
+
+
+  return $info;
+}
+
+
+
+/**
+   * Extending the EntityAPIController for the Project entity.
+   */
+  class JrbTeamMembersEntityController extends EntityAPIController { // NOTE MAKE SURE THIS AGREES WITH THE CONTROLLER DEFINTION IN ENTITY INFO 
+   
+
+    public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
+   
+      $build = parent::buildContent($entity, $view_mode, $langcode, $content);
+      
+      // Our additions to the $build render array.
+	  
+	   $build['team_member_name'] = array(
+        '#type' => 'markup',
+        '#markup' => check_plain($entity->team_member_name),
+        '#prefix' => '<div class="team-members-name">',
+        '#suffix' => '</div>'
+      );
+	     
+      $build['team_member_description'] = array(
+        '#type' => 'markup',
+        '#markup' => check_plain($entity->team_member_description),
+        '#prefix' => '<div class="team-members-description">',
+        '#suffix' => '</div>'
+      );
+
+
+    
+    /*
+       NOTE !! The above will output the html : 
+     
+     <div class="entity entity-jrb-team_members jrb-team_members-jrb-team_members clearfix" about="" typeof="">
+
+             <h2>Winter Team 1 </h2>
+             <div class="content">
+                <div class="team-member-description">A crazy, winter Christmas team.</div>  
+         </div>
+         </div> 
+    */
+      
+
+
+	    
+	  $build['team_member_team_name'] = array(
+        '#type' => 'markup',
+        '#markup' => check_plain($entity->team_member_team_name),
+        '#prefix' => '<div class="team-members-team-name">TEAM MEMBERS TEAM NAME LISTED HERE!! //dwc',
+        '#suffix' => '</div>'
+      );
+	  
+
+
+   /*
+     $build['team_member_team'] = array(
+        '#type' => 'markup',
+        '#markup' => check_plain($entity->team_member_team),
+        '#prefix' => '<div class="team-member-team">',
+        '#suffix' => '</div>'
+      );
+
+  */
+	  
+	
+
+
+      return $build;
+    
+    }  
+  }
+  
+  /**
+ * Project entity class extending the Entity class
+ */
+class JrbTeamMembersEntity extends Entity {
+  
+  /**
+   * Change the default URI from default/id to project/id
+   */
+  protected function defaultUri() {
+	
+	//echo "this identifier is " .$this->identifier(); 
+	// the given id of the entity ; will loop through all when displaying a given list of all jrb_team member entities
+	 // echo __METHOD__;exit;
+	  
+    return array('path' => 'team-member/' . $this->identifier()); // forms the url of each team member as they're listed out
+  }
+  
+}  

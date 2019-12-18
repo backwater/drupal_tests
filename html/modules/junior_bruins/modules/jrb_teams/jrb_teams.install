@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function jrb_teams_schema() {
+  
+  $schema = array();
+   
+  $schema['jrb_teams'] = array(
+    'description' => 'The base table for the Junior Bruins Teams',
+    'fields' => array(
+      'team_id' => array(
+        'description' => 'Primary key of the JR Bruins Teams',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'team_name' => array(
+        'description' => 'Team name.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'team_description' => array(
+        'description' => 'Team description.',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+        'default' => NULL
+      ),
+      
+    ),
+    'primary key' => array('team_id'),
+  );
+  
+  return $schema;
+}
