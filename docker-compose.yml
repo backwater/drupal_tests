@@ -1,0 +1,74 @@
+# Drupal with Mysql
+#
+# Access via "http://localhost:8080"
+#   (or "http://$(docker-machine ip):8080" if using docker-machine)
+#
+# During initial Drupal setup,
+# Database type: mariadb
+# Database name: drupal_test
+# Database username: danc
+# Database password: tester
+# ADVANCED OPTIONS; Database host: mariadb
+
+version: '3.1'
+
+services:
+
+  
+
+  #mysql:
+ # db:
+ #    image: mariadb
+     #command: --default-authentication-plugin=mysql_native_password
+ #    environment:
+ #      MYSQL_USER: danc
+ #      MYSQL_ROOT_PASSWORD: example
+ #      MYSQL_DATABASE: drupal_dwc_local
+ #      MYSQL_PASSWORD: tester
+ #    restart: always
+
+  mysql:
+    image: mysql:5.7.22
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    ports: 
+      - 42333:3306  
+
+
+
+  drupal:
+    image: drupal:7-apache 
+    depends_on:
+      - mysql
+    ports:
+      - 8089:80
+    volumes:
+
+      # - /var/www/html/modules
+      # - /var/www/html/profiles
+      # - /var/www/html/themes
+      # this takes advantage of the feature in Docker that a new anonymous
+      # volume (which is what we're creating here) will be initialized with the
+      # existing content of the image at the same location
+
+       - /Users/danielcauthorn/Desktop/quickdraw/docker_drupal2/html:/var/www/html
+       - /Users/danielcauthorn/Desktop/quickdraw/docker_drupal2/html/sites:/var/www/html/sites
+       - /Users/danielcauthorn/Desktop/quickdraw/docker_drupal2/html/modules:/var/www/html/modules
+       - /Users/danielcauthorn/Desktop/quickdraw/docker_drupal2/html/profiles:/var/www/html/profiles
+       - /Users/danielcauthorn/Desktop/quickdraw/docker_drupal2/html/themes:/var/www/html/themes
+      
+
+      # this takes advantage of the feature in Docker that a new anonymous
+      # volume (which is what we're creating here) will be initialized with the
+      # existing content of the image at the same location
+      #- /Users/danielcauthorn/Desktop/quickdraw/docker_drupal2/html/sites:/var/www/html/sites
+    restart: always     
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080 
+#works ! using http://localhost:8080/?server=db&username=root logs in into admin admin GUI tool      

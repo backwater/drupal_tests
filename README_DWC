@@ -1,0 +1,17 @@
+
+
+
+https://stackoverflow.com/questions/33422546/docker-drupal-container-linked-to-mysql-container-cant-connect-to-mysql-durin
+
+
+
+Note !! When connecting a Drupal docker container to a mysql container, 
+
+make sure that, when Drupal is asking you for the db location, and localhost is provided by default. 
+
+but don't put localhost ! use the name of the db container ( in this case docker_drupal2_mysql_1 ) 
+
+
+
+
+

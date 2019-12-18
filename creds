@@ -1,0 +1,71 @@
+
+// https://stackoverflow.com/questions/33827342/how-to-connect-mysql-workbench-to-running-mysql-inside-docker
+
+
+
+// https://stackoverflow.com/questions/33422546/docker-drupal-container-linked-to-mysql-container-cant-connect-to-mysql-durin
+// refer to the above for issues
+
+
+docker_drupal2 creds
+
+
+db name: drupal_dwc_local
+pw: example
+
+
+
+
+
+docker exec -it 6718d3c8a37c /bin/bash 
+
+
+mysql -u root -p
+
+
+
+create user 'dwc'@'%' identified by 'tester';
+grant all privileges on *.* to 'dwc'@'%' with grant option;
+flush privileges;
+
+
+///
+
+
+Drupal username:
+
+danc
+
+
+pw: tester
+
+
+docker exec -it 4288a0ff1ac8  /bin/bash  
+
+
+
+NOTE SOME HINTS ON THE ERROR: 
+
+lock_may_be_available() (line 167 of C:\wamp\www\drupal7\includes\lock.inc).
+
+// https://www.drupal.org/forum/support/installing-drupal/2014-06-04/pdoexception-in-lock_may_be_available-line-167-of
+
+NOTE - TO DEAL WITH THE ABOVE PROBLEM: 
+
+https://www.drupal.org/forum/support/installing-drupal/2014-06-04/pdoexception-in-lock_may_be_available-line-167-of
+
+{ a post near the bottom of the page }
+My problem is due to MySQL 5.7 does not allow root user to access a database from client app. After switching to a normal user, problem solved.
+
+{ another post }
+Same here; problem with root
+no74h commented 6 months ago
+Same here; problem with root access, after creating a new user and grant all necessary privileges and updated settings.php everything is good.
+
+
+
+  
+create user 'danc'@'%' identified by 'example';
+grant all privileges on *.* to 'danc'@'%' with grant option;
+flush privileges;
+
