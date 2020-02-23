@@ -173,6 +173,8 @@
 
   <div id="main-wrapper" class="clearfix"><div id="main" class="clearfix">
 
+    <?php echo "THIS IS THE MAIN PAGE TEMPLATE, LOCATED HERE: " . __FILE__; ?>
+
     <?php if ($breadcrumb): ?>
       <div id="breadcrumb"><?php print $breadcrumb; ?></div>
     <?php endif; ?>
@@ -204,7 +206,59 @@
           <?php print render($action_links); ?>
         </ul>
       <?php endif; ?>
-      <?php print render($page['content']); ?>
+      
+
+      <?php 
+
+      
+      /*
+      echo "<pre>"; 
+
+      print_r($page['content']);  // this prints out the new fields I added, why am I not seeing them ? //dwc
+
+      echo "</pre>";
+      */
+
+
+      $node_type = 'licensed_vendor';
+
+      $result = db_query( "SELECT nid FROM node WHERE type = :nodeType ", array(':nodeType'=> $node_type ));
+
+      $nids = array();
+
+
+      foreach ($result as $obj) { 
+
+        $nids[] = $obj->nid;
+      
+      }
+
+     // print_r($nids);
+
+
+      foreach($nids as $nid) {
+
+           $node = node_load($nid);
+
+           print_r( $node );
+
+      }
+      
+
+      
+
+
+ 
+
+
+
+
+      //https://www.drupal.org/forum/support/module-development-and-code-questions/2011-03-03/how-to-get-all-node-ids-of-a
+      //print render($page['content']); ?>
+
+     
+
+
       <?php print $feed_icons; ?>
 
     </div></div> <!-- /.section, /#content -->
