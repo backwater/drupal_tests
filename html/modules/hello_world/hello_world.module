@@ -5,7 +5,8 @@ function hello_world_menu() {
 
     $items['tester/hello_world'] = array(
         'title' => 'Hello World Test //DWC',
-        'page callback' => 'say_hello_world',
+       // 'page callback' => 'say_hello_world',
+        'page callback' => 'my_static_page',
         'access arguments' => array('access content'),
         'type' => MENU_CALLBACK,
      );
@@ -21,4 +22,20 @@ function say_hello_world() {
     $vars['items'][0]="This is a simple proof of concept module";
 
     return theme_item_list($vars);
+}
+
+function my_static_page() { 
+  $html = theme('html_page');
+  return $html;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function hello_world_theme($existing, $type, $theme, $path) {
+  return array(
+    'html_page' => array(
+      'template' => 'html-page',
+    ),
+  );
 }
