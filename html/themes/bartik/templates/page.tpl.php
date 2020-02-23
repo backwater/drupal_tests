@@ -220,6 +220,8 @@
       */
 
 
+      /*
+
       $node_type = 'licensed_vendor';
 
       $result = db_query( "SELECT nid FROM node WHERE type = :nodeType ", array(':nodeType'=> $node_type ));
@@ -243,6 +245,8 @@
            print_r( $node );
 
       }
+
+      */
       
 
       
@@ -254,7 +258,10 @@
 
 
       //https://www.drupal.org/forum/support/module-development-and-code-questions/2011-03-03/how-to-get-all-node-ids-of-a
-      //print render($page['content']); ?>
+      
+
+
+      print render($page['content']); ?>
 
      
 
