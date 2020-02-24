@@ -25,7 +25,14 @@ function say_hello_world() {
 }
 
 function my_static_page() { 
-  $html = theme('html_page');
+  $html = theme('html_page', 
+                 array( 
+                        "fruits"  => array("apple","pear","banana"),
+                        "veggies" => array("beets","onions","mushrooms") // works - we can access these array items in template
+                      ));
+
+ // $html .= '<h1>Can I add on some html this way ?</h1>'; // YUP ! works.
+
   return $html;
 }
 
