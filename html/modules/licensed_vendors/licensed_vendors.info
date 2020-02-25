@@ -1,0 +1,3 @@
+name = licensed_vendors
+description = offers an improved listing of Rotary International licensed vendors according to region, country and state
+core = 7.x

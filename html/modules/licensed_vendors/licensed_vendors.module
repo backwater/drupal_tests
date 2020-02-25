@@ -1,0 +1,85 @@
+<?php
+
+function licensed_vendors_menu() {
+    
+    $items = [];
+
+    $items['licensed-vendors'] = array(
+        'title' => 'Licensed Vendors',
+        'page callback' => 'serve_licensed_vendors_page',
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK,
+     );
+
+    return $items;
+}
+
+
+
+function get_country_region($country){
+
+        $map_countries_to_regions = [
+
+                                       "Asia" => ["Japan","India","China"],
+                                       "North america" => ["US", "Canada"],
+                                       "Oceania" => ["Australia","New Zealand"]
+                                    ];
+        
+       foreach( $map_countries_to_regions as $region => $country_array ){
+
+            if( in_array($country, $country_array) ){
+
+                return $region;
+            } 
+       }
+
+       return false;
+   }
+
+function serve_licensed_vendors_page() { 
+
+
+  $query = new EntityFieldQuery();
+
+  $query->entityCondition('entity_type', 'node')->entityCondition('bundle', 'licensed_vendor');
+
+  $result = $query->execute();
+
+if (isset($result['node'])) {
+  
+  $licensed_vendors_nids = array_keys($result['node']);
+  $licensed_vendors = entity_load('node', $licensed_vendors_nids);
+
+} 
+
+ foreach($licensed_vendors as $vendor) {
+
+       // get the zone from the vendors country 
+ }
+
+  $html = theme('licensed_vendors_page',
+                
+                 array( 
+                        "vendors" => $licensed_vendors
+                      )
+               );
+             
+  return $html;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function licensed_vendors_theme($existing, $type, $theme, $path) {
+  
+  return array(
+
+      'licensed_vendors_page' => array(
+      'template' => 'licensed-vendors-page',
+    ),
+
+  );
+  
+}
+
+

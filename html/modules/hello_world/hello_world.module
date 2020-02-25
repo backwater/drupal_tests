@@ -15,6 +15,7 @@ function hello_world_menu() {
 }
 
 function say_hello_world() {
+
     $vars = array();
     $vars['type']="ul";
     $vars['title'] = "";
@@ -24,15 +25,35 @@ function say_hello_world() {
     return theme_item_list($vars);
 }
 
+
+
 function my_static_page() { 
+  
+
+ 
+
+
+  /*
   $html = theme('html_page', 
+                
                  array( 
                         "fruits"  => array("apple","pear","banana"),
                         "veggies" => array("beets","onions","mushrooms") // works - we can access these array items in template
+                       
                       ));
 
- // $html .= '<h1>Can I add on some html this way ?</h1>'; // YUP ! works.
+ */
+         
+ $country = 'India';
 
+  $html = theme('fuzzy_page',
+                
+                 array( 
+                        "fruits"  => array("apple","pear","banana"),
+                        "veggies" => array("beets","onions","mushrooms"), // works - we can access these array items in template
+                        "region"  => ''
+                      ));
+             
   return $html;
 }
 
@@ -40,9 +61,25 @@ function my_static_page() {
  * Implements hook_theme().
  */
 function hello_world_theme($existing, $type, $theme, $path) {
+
+   return array (
+       
+       /* fuzzy_page below, is the name of the theme that is called above with the theme() function. Note they have to match ! */
+
+       'fuzzy_page' => array('template' => 'fuzzy-page')
+
+   );
+
+
+  /*
   return array(
+
     'html_page' => array(
       'template' => 'html-page',
     ),
+
   );
+  */
 }
+
+
