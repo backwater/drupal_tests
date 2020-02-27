@@ -14,7 +14,9 @@ db name: drupal_dwc_local
 pw: example
 
 
+db host: docker_drupal2_mysql_1
 
+port: 3306
 
 
 docker exec -it 6718d3c8a37c /bin/bash 
@@ -22,6 +24,8 @@ docker exec -it 6718d3c8a37c /bin/bash
 
 mysql -u root -p
 
+
+NOTE !!!! ( Argh !!!! ) roots pw is still 'example'  , dan's pw is: 'tester'
 
 
 create user 'dwc'@'%' identified by 'tester';

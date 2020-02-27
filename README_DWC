@@ -42,7 +42,7 @@ So I did the above user creation to resolve the semaphore lock issue. Note that 
 Once I did that, everything started up fine, with no lock errors.
 
 
-
+IF YOU'RE STILL STUCK ON THAT LOCK ERROR PAGE - RENAME SETTINGS.PHP FOLDER TO DEACTIVATE IT. THEN I THINK YOU HAVE TO START OVER, ie REBUILD WHOLE CONTAINER SYSTEM.
 
 
 https://stackoverflow.com/questions/34773555/exporting-data-from-mysql-docker-image

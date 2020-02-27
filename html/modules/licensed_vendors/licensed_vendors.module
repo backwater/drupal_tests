@@ -19,10 +19,12 @@ function licensed_vendors_menu() {
 function get_country_region($country){
 
         $map_countries_to_regions = [
-
-                                       "Asia" => ["Japan","India","China"],
-                                       "North america" => ["US", "Canada"],
-                                       "Oceania" => ["Australia","New Zealand"]
+                                       "Africa" =>["Cote d'Ivoire", "Zambia"],
+                                       "Asia" => ["Hong Kong","India","Indonesia","Japan","Korea","Malaysia","Philippines","Taiwan","Thailand"],
+                                       "Europe" => ["Belgium","Denmark","England","Finland","Germany","Guernsey","Italy","Netherlands","Norway","Spain","Sweden","Switzrland"],
+                                       "North america" => ["Canada","United States","Mexico"],
+                                       "Oceania" => ["Australia","New Zealand"],
+                                       "South America" => ["Argentia","Brazil","Peru"]
                                     ];
         
        foreach( $map_countries_to_regions as $region => $country_array ){
@@ -54,7 +56,10 @@ if (isset($result['node'])) {
 
  foreach($licensed_vendors as $vendor) {
 
-       // get the zone from the vendors country 
+       // in here, we get the zone from the vendors country and add them to the given vendor node
+
+      // $vendor->field_vendor_address['und'][0]['value']
+ 
  }
 
   $html = theme('licensed_vendors_page',
