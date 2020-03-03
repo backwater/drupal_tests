@@ -49,3 +49,50 @@ https://stackoverflow.com/questions/34773555/exporting-data-from-mysql-docker-im
 
 docker exec docker_drupal2_mysql_1 /usr/bin/mysqldump -u danc --password=example drupal_dwc_local > drupal_dwc_local_backup_12_18_2019.sql // works ! pulls db from running docker container
 
+
+
+docker exec docker_drupal2_mysql_1 /usr/bin/mysqldump -u root --password=example drupal_dwc_local > drupal_dwc_local_backup_02_27_2020.sql
+
+
+///// DOCKER-COMPOSE DOWN ISSUE: https://stackoverflow.com/questions/35620997/how-to-make-volumes-permanent-with-docker-compose-v2 
+
+Do not use docker-compose down ! It will delete containers. Use docker compose stop.
+
+2
+
+Not sure if this helps or not. When you use docker-compose up -d the container is downloaded and images created. To stop the docker images, use docker-compose down, and the images will remain and can be restarted with docker-compose start
+
+I was using the up/down commands and kept losing my data until I tried the stop/start and now data persists.
+
+shareimprove this answer
+answered Oct 12 '16 at 13:27
+
+Bobby McGill
+3722 bronze badges
+After a couple of hours of searching this solved my problem! – mattsch Nov 2 '16 at 22:08
+
+This is wrong. docker-compose down deletes volumes. I think that's what Bobby meant to say though. – Jonathan Stray May 23 '17 at 0:17
+
+Stop/Start will keep the same containers, if you lose data from a down/up, then you are not storing your data in a volume, rather your data is in the container itself which should not be considered persistent. docker-compose down does not delete volumes unless you include the -v option too. – BMitch May 23 '17 at 1:38 
+add a comment
+
+
+The simplest solution is to use docker-compose stop instead of docker-compose down. And then docker-compose start to restart.
+
+
+ccording to the docs, down "stops containers and removes containers, networks, volumes, and images created by up."
+
+shareimprove this answer
+answered May 23 '17 at 0:14
+
+Jonathan Stray
+1,82722 gold badges2323 silver badges3030 bronze badges
+3
+docker-compose down does not delete volumes unless you pass the -v option. – BMitch May 23 '17 at 1:36
+That is not what I am seeing, with this docker-compose.yml file. Down definitely deletes the volume even without -v. If there is something I am doing wrong I would love to know! I live in fear of accidentally losing my database. – Jonathan Stray May 23 '17 at 18:27
+
+
+
+
+
+

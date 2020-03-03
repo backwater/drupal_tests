@@ -14,32 +14,40 @@ function licensed_vendors_menu() {
     return $items;
 }
 
+/*
+  
+  @param $country 
+  @returns $region | boolean 
 
+*/
 
 function get_country_region($country){
 
+        $found_region = false;
+
         $map_countries_to_regions = [
-                                       "Africa" =>["Cote d'Ivoire", "Zambia"],
-                                       "Asia" => ["Hong Kong","India","Indonesia","Japan","Korea","Malaysia","Philippines","Taiwan","Thailand"],
-                                       "Europe" => ["Belgium","Denmark","England","Finland","Germany","Guernsey","Italy","Netherlands","Norway","Spain","Sweden","Switzrland"],
+                                       "Africa" =>["Algeria","DZ","DZA","Angola","AO","AGO","Cote d'Ivoire","Zambia"],
+                                       "Asia" =>  ["Afghanistan","AF","AFG", "Hong Kong","HK","India","IN","Indonesia","Japan","Korea",
+                                       "Malaysia","Philippines","Taiwan","Thailand"],
+                                       "Europe" => ["Albania","AL","ALB","Andorra","AD","AND","Belgium","Denmark","England","Finland","Germany","Guernsey","Italy","Netherlands","Norway","Spain","Sweden","Switzrland"],
                                        "North america" => ["Canada","United States","Mexico"],
-                                       "Oceania" => ["Australia","New Zealand"],
+                                       "Oceania" => ["American Samoa","AS","ASM","Australia","New Zealand"],
                                        "South America" => ["Argentia","Brazil","Peru"]
                                     ];
         
        foreach( $map_countries_to_regions as $region => $country_array ){
 
-            if( in_array($country, $country_array) ){
+            if( in_array(trim($country), $country_array) ){
 
-                return $region;
+                  $found_region = z($region);
+                  break;
             } 
        }
 
-       return false;
+       return $found_region;
    }
 
 function serve_licensed_vendors_page() { 
-
 
   $query = new EntityFieldQuery();
 
@@ -47,25 +55,44 @@ function serve_licensed_vendors_page() {
 
   $result = $query->execute();
 
-if (isset($result['node'])) {
+  if (isset($result['node'])) {
   
-  $licensed_vendors_nids = array_keys($result['node']);
-  $licensed_vendors = entity_load('node', $licensed_vendors_nids);
+    $licensed_vendors_nids = array_keys($result['node']);
+    $licensed_vendors = entity_load('node', $licensed_vendors_nids);
 
-} 
+  } 
 
- foreach($licensed_vendors as $vendor) {
+  $vendors_to_display = [];
 
-       // in here, we get the zone from the vendors country and add them to the given vendor node
+  foreach($licensed_vendors as $vendor) {
 
-      // $vendor->field_vendor_address['und'][0]['value']
- 
+    // get the zone from the vendor's country and add that as a field to the given vendor node
+
+    if(isset($vendor->field_lv_country['und'][0]['value'])) {
+
+             $lv_region = get_country_region($vendor->field_lv_country['und'][0]['value']); 
+
+             if($lv_region) {
+   
+                     $vendor->region = $lv_region;
+                     $vendors_to_display[] = $vendor;
+             }
+             else {
+                     
+                     // need to wrap the below in a t() function 
+                     watchdog('licensed_vendors','Region could not be found for: @country',
+                       array('@country' => $vendor->field_lv_country['und'][0]['value']),
+                       WATCHDOG_INFO
+                      ); 
+             }     
+         }
  }
+
 
   $html = theme('licensed_vendors_page',
                 
                  array( 
-                        "vendors" => $licensed_vendors
+                        "vendors" => $vendors_to_display
                       )
                );
              
