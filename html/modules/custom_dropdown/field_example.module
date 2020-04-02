@@ -1,0 +1,80 @@
+<?php 
+
+
+/*
+
+   Implements hook_field_widget_info()
+
+*/
+
+function custom_dropdown_widget_info(){
+  
+    return array (
+
+                  
+                     'custom_dropdown' => array(
+
+                         'label'        => t('Country Dropdown'),
+                         'field_types'  => array('list_text')
+
+                     )
+
+                     
+                 );
+
+
+}
+
+/*
+
+  Implements hook_field_widget_form().
+
+*/
+
+
+function hook_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+     
+      // note this has to match the schema column in order to be saved 
+      $element['country'] = array(
+        
+        '#type' => 'select',
+        '#field_prefix' => t('COUNTRY: #'),
+        '#options' => array('USA','Mexico'),
+        '#default_value' => isset( $items[$delta]['country'] ) ? $items[$delta]['country'] : '',
+
+      );
+
+
+      $element['label'] = array(
+        
+        '#type' => 'select',
+        '#field_prefix' => t('Country Name:'),
+        '#options' => array('USA','Mexico'),
+        '#default_value' => isset( $items[$delta]['country'] ) ? $items[$delta]['country'] : '',
+
+
+      );
+
+
+      return $element;
+
+ }
+
+
+/*
+
+   Implements hook_field_formatter_info()
+
+*/
+
+
+   function custom_dropdown_formatter_info() {
+
+      return array (
+
+           
+
+
+      );
+
+   }

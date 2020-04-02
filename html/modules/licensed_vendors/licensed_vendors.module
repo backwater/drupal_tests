@@ -1,117 +1,207 @@
 <?php
-
+ 
 function licensed_vendors_menu() {
-    
+   
     $items = [];
-
+ 
     $items['licensed-vendors'] = array(
         'title' => 'Licensed Vendors',
         'page callback' => 'serve_licensed_vendors_page',
         'access arguments' => array('access content'),
         'type' => MENU_CALLBACK,
      );
-
+ 
     return $items;
 }
-
-/*
-  
-  @param $country 
-  @returns $region | boolean 
-
+ 
+/**
+  get_region_and_country
+ 
+  Maps a country code to a region, then returns region and country full name
+  @param: ISO-2 $country code
+  @returns: $array | boolean
+ 
 */
-
-function get_country_region($country){
-
-        $found_region = false;
-
+ 
+function get_region_and_country( $country_code ){
+ 
+ 
         $map_countries_to_regions = [
-                                       "Africa" =>["Algeria","DZ","DZA","Angola","AO","AGO","Cote d'Ivoire","Zambia"],
-                                       "Asia" =>  ["Afghanistan","AF","AFG", "Hong Kong","HK","India","IN","Indonesia","Japan","Korea",
-                                       "Malaysia","Philippines","Taiwan","Thailand"],
-                                       "Europe" => ["Albania","AL","ALB","Andorra","AD","AND","Belgium","Denmark","England","Finland","Germany","Guernsey","Italy","Netherlands","Norway","Spain","Sweden","Switzrland"],
-                                       "North america" => ["Canada","United States","Mexico"],
-                                       "Oceania" => ["American Samoa","AS","ASM","Australia","New Zealand"],
-                                       "South America" => ["Argentia","Brazil","Peru"]
+                                       "Africa" =>       [
+ 
+                                                             "DZ" => "Algeria", "AO" => "Angola", "BJ" => "Benin", "BW" => "Botswana", "BF" => "Burkina Faso", "BI" => "Burundi", "TD" => "Chad", "CV" => "Cabo Verde", "CF" => "Central African Republic", "KM" => "Comoros", "CI" => "Côte d'Ivoire", "DJ" => "Djibouti", "CG" => "Congo", "CD" => "Democratic Republic of Congo", "DM" => "Dominica", "EG" => "Egypt", "SZ" => "Eswatini", "GQ" => "Equatorial Guinea", "GA" => "Gabon", "GM" => "Gambia", "GH" => "Ghana", "GN" => "Guinea",  "GW" => "Guinea-Bissau", "ER" => "Eritrea", "ET" => "Ethiopia", "KE" => "Kenya", "LS" => "Lesotho", "LR" => "Liberia", "LY" => "Libya",  "MG" => "Madagascar", "MW" => "Malawi", "ML" => "Mali", "MR" => "Mauritania", "MR" => "Mauritania", "MU" => "Mauritius", "YT" => "Mayotte", "MA" => "Morocco", "MZ" => "Mozambique", "NA" => "Namibia", "NE" => "Niger", "NG" => "Nigeria", "RW" => "Rwanda", "SC" => "Seychelles", "SL" => "Sierra Leone", "SN" => "Senegal", "SO" => "Somalia", "ZA" => "South Africa", "SD" => "Sudan", "TZ" => "United Republic of Tanzania", "TG" => "Togo", "TN" => "Tunisia", "UG" => "Uganda",  "EH" => "Western Sahara", "ZM" => "Zambia", "ZW" => "Zimbabwe"
+                                                         ],
+ 
+                                       "Asia" =>         [
+ 
+                                                              "AF" => "Afghanistan", "BH" => "Bahrain", "BD" => "Bangladesh", "BT" => "Bhutan", "BN" => "Brunei Darussalam", "KH" => "Cambodia", "CM" => "Cameroon", "CN" => "China", "HK" => "Hong Kong", "IN" => "India", "ID" => "Indonesia", "IR" => "Islamic Republic of Iran", "IQ" => "Iraq", "ID" => "Indonesia", "IL" => "Israel", "JP" => "Japan", "JO" => "Jordan", "KZ" => "Kazakhstan", "KR" => "Korea", "KP" => "Democratic People's Republic of Korea", "KW" => "Kuwait", "KG" => "Kyrgyzstan", "LA" => "People's Democratic Republic of Laos", "LV" => "Latvia", "LB" => "Lebanon", "MO" => "Macao", "MY" => "Malaysia", "MN" => "Mongolia", "MM" => "Myanmar", "NP" => "Nepal", "OM" => "Oman", "PK" =>  "Pakistan", "PS" => "Palestine",  "PH" => "Philippines", "QA" => "Qatar", "SA" => "Saudi Arabia", "SG" => "Singapore", "SY" => "Syrian Arab Republic", "TW" => "Taiwan", "TJ" => "Tajikistan", "TH" => "Thailand", "TL" => "Timor-Leste", "TM" => "Turkmenistan", "AE" => "United Arab Emirates", "UZ" => "Uzbekistan", "VN" => "Viet Nam", "YE" => "Yemen"
+                                                         ],
+ 
+                                       "Europe" =>       [
+                                                             "AX" => "Åland Islands", "AL" => "Albania", "AD" => "Andorra",
+                                                             "AM" => "Armenia", "AZ" => "Azerbaijan", "AT" => "Austria","BY" => "Belarus", "BE" => "Belgium", "BA" => "Bosnia and Herzegovina", "BG" => "Bulgaria","HR" => "Croatia", "CY" => "Cyprus", "CZ" => "Czechia", "DK" => "Denmark", "EE" => "Estonia", "FO" => "Faroe Islands", "FI" => "Finland", "FR" => "France", "DE" => "Germany", "GG" => "Guernsey-Channel Islands", "GE" => "Georgia", "GI" => "Gibraltar", "GR" => "Greece", "GL" => "Greenland", "HU" => "Hungary", "IE" => "Ireland", "IM" => "Isle of Man", "IS" => "Iceland", "IT" => "Italy", "JE" => "Jersey-Channel Islands", "LV" => "Latvia", "LV" => "Liechtenstein", "LT" => "Lithuania", "LU" => "Luxembourg", "MT" => "Malta", "MD" => "Moldova", "MC" => "Monaco", "ME" => "Montenegro", "MK" => "Macedonia", "NL" => "Netherlands", "NO" => "Norway", "PL" => "Poland", "PT" => "Portugal", "RO" => "Romania", "RU" => "Russia", "SM" => "San Marino", "RS" => "Serbia", "SK" => "Slovakia", "SI" => "Slovenia", "ES" => "Spain", "LK" => "Sri Lanka", "SE" => "Sweden", "CH" => "Switzerland", "TR" => "Turkey", "UA" => "Ukraine", "GB" => "United Kingdom"
+                                                          ],
+ 
+                                       "North America" => [
+ 
+                                                            "AI" => "Anguilla", "AG" => "Antigua and Barbuda", "BB" => "Barbados", "BS" => "Bahamas", "AW" => "Aruba", "BZ" => "Belize", "BM" => "Bermuda", "BQ" => "Bonaire, Sint Eustatius and Saba", "CA" => "Canada", "KY" => "Cayman Islands", "CR" => "Costa Rica", "CU" => "Cuba", "DO" => "Dominican Republic", "GD" => "Grenada", "GP" => "Guadeloupe", "GU" => "Guam", "HT" => "Haiti", "SV" => "El Salvador", "EC" => "Ecuador", "HN" => "Honduras", "JM" => "Jamaica", "MQ" =>  "Martinique", "MX" => "Mexico", "MS" => "Montserrat", "NC" => "New Caledonia", "NI" => "Nicaragua", "PA" =>"Panama", "PR" => "Puerto Rico", "BL" => "Saint Barthélemy", "KN" => "Saint Kitts and Nevis", "LC" => "Saint Lucia", "MF" => "Saint Martin", "PM" => "Saint Pierre and Miquelon", "VC" => "Saint Vincent and the Grenadines", "SX" => "Sint Maarten", "TT" => "Trinidad and Tobago", "US" => "United States", "TC" => "Turks and Caicos Islands", "VG" => "British Virgin Islands", "VI" => "United States Virgin Islands"
+                                                          ],
+ 
+                                       "Oceania" =>       [
+                                                             "AS" => "American Samoa", "AU" => "Australia", "CX" => "Christmas Island", "CC" => "Cocos Islands",
+                                                             "CK" => "Cook Islands", "FJ" => "Fiji", "PF" => "French Polynesia", "MH" => "Marshall Islands",
+                                                             "FM" => "Federated States of Micronesia", "NR" => "Nauru", "NZ" => "New Zealand", "NU" => "Niue", "NF" => "Norfolk Island",
+                                                             "MP" => "Northern Mariana Islands", "PW" => "Palau", "PG" => "Papua New Guinea",
+                                                             "PN" => "Pitcairn", "WS" => "Samoa", "TK" => "Tokelau", "TO" => "Tonga", "VU" => "Vanuatu", "WF" => "Wallis and Futuna"
+                                                          ],
+ 
+                                       "South America" => [
+                                                              "AR" => "Argentina", "BO" =>"Bolivia", "BR" => "Brazil", "CL" => "Chile",
+                                                              "CO" => "Colombia", "FK" => "Falkland Islands", "GF" => "French Guiana",
+                                                              "GT" => "Guatemala", "GY" => "Guyana", "PY" => "Paraguay", "PE" => "Peru",
+                                                              "SR" => "Suriname", "UY" => "Uruguay", "VE" => "Venezuela"
+                                                          ]
                                     ];
-        
-       foreach( $map_countries_to_regions as $region => $country_array ){
-
-            if( in_array(trim($country), $country_array) ){
-
-                  $found_region = z($region);
-                  break;
-            } 
+ 
+ 
+       foreach( $map_countries_to_regions as $region => $country_array ) {
+ 
+            if( array_key_exists( trim( $country_code ), $country_array ) ) {
+ 
+                    $found_region = t( $region );
+                    $found_country = t( $country_array[ $country_code ] );
+ 
+                    return  [ $found_region => $found_country ];
+ 
+                    break;
+            }
        }
-
-       return $found_region;
+ 
+       return false;
    }
-
-function serve_licensed_vendors_page() { 
+ 
+function serve_licensed_vendors_page() {
+ 
 
   $query = new EntityFieldQuery();
-
+ 
   $query->entityCondition('entity_type', 'node')->entityCondition('bundle', 'licensed_vendor');
-
+ 
   $result = $query->execute();
 
-  if (isset($result['node'])) {
-  
-    $licensed_vendors_nids = array_keys($result['node']);
-    $licensed_vendors = entity_load('node', $licensed_vendors_nids);
+  $test_t = t('will this string show up as translatable somewhere?');
 
-  } 
+  if( $result ){
 
-  $vendors_to_display = [];
+      if (isset($result['node'])) {
+ 
+         $licensed_vendors_nids = array_keys($result['node']);
+         $licensed_vendors = entity_load('node', $licensed_vendors_nids);
+     }
+ 
+     $vendors_to_display = [];
+ 
+      foreach($licensed_vendors as $vendor) {
 
-  foreach($licensed_vendors as $vendor) {
+         // start test ....
 
+              // $available_languages = field_available_languages('node', 'field_lv_country');
+
+              // echo "Available languages are: <pre>";
+
+              // print_r( $available_languages  );
+
+              // echo "<br/>"; 
+
+                $language_code = field_language( 'node', $vendor, 'field_lv_country', $vendor->language ); 
+
+               // echo "Country language code is: " . $language_code;  
+
+             // end test. 
+ 
     // get the zone from the vendor's country and add that as a field to the given vendor node
+ 
+    if(isset($vendor->field_lv_country[$language_code][0]['value'])) {
 
-    if(isset($vendor->field_lv_country['und'][0]['value'])) {
 
-             $lv_region = get_country_region($vendor->field_lv_country['und'][0]['value']); 
+               // $vendor->field_lv_country[$language_code][0]['value'] = 'ESPARANTO';
+ 
+              $lv_region = get_country_region($vendor->field_lv_country[$language_code][0]['value']);
 
+ 
              if($lv_region) {
-   
-                     $vendor->region = $lv_region;
+  
+                     $vendor->region = key($lv_region);
+
+                     echo "VENDOR REGION IS: ". $vendor->region; //works !!
+                     echo "VENDOR COUNTRY IS: ". array_values($lv_region)[0]; //works !
+
                      $vendors_to_display[] = $vendor;
+
              }
              else {
-                     
-                     // need to wrap the below in a t() function 
+
+                     // NOTE !! Where is the interface for translating strings that modules pass to t(), in Drupal 7?
+                     /*
+
+                     Ok, my bad. It's located here: **admin/config/regional/translate/translate**
+
+But I was confused by the interface. The search is case sensitive so that got me to start. Then it was showing "fr", which is the language to translate to, NOT the language that it is. Click the "edit" link under **Operations** to add a translation.
+
+I had to enable the Locale and Content Translation Module first. Otherwise there is no page at admin/config/regional/translate/translate.
+
+
+                     */
+
+                     $region_not_found_msg = t('Region could not be found for: @country', array('@country' => $vendor->field_lv_country[$language_code][0]['value'])   );
+
+                      watchdog('licensed_vendors',$region_not_found_msg, array(), WATCHDOG_ERROR);
+                    
+                     // need to wrap the below in a t() function
+                      /*
                      watchdog('licensed_vendors','Region could not be found for: @country',
                        array('@country' => $vendor->field_lv_country['und'][0]['value']),
                        WATCHDOG_INFO
-                      ); 
-             }     
+                      );
+                      */
+             }    
          }
- }
-
-
-  $html = theme('licensed_vendors_page',
-                
-                 array( 
+    }
+ 
+ 
+   $html = theme('licensed_vendors_page',
+               
+                 array(
                         "vendors" => $vendors_to_display
                       )
-               );
-             
-  return $html;
+             ); 
+    }
+
+    else {
+
+          $html = '<div>No licensed vendors could be found.</div>';
+    }
+
+    return $html;
+
 }
-
-/**
- * Implements hook_theme().
- */
-function licensed_vendors_theme($existing, $type, $theme, $path) {
+ 
   
+ 
+/**
+* Implements hook_theme().
+*/
+function licensed_vendors_theme($existing, $type, $theme, $path) {
+ 
   return array(
-
+ 
       'licensed_vendors_page' => array(
       'template' => 'licensed-vendors-page',
     ),
-
+ 
   );
-  
+ 
 }
-
-
+ 
+ 
+ 

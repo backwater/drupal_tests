@@ -1,0 +1,33 @@
+<?php 
+
+
+/*
+    Implements hook_field_widget_info()
+
+*/
+
+function states_widget_dropdown_field_widget_info() {
+	
+
+    return array(
+    
+       'states_widget_dropdown' => array(
+
+             'label' => t('US States Dropdown'),
+             'field types' => array('list_text'),
+
+            ),
+
+    );
+
+}
+
+
+
+/**
+
+Implements hook_field_widget_form()
+
+*/
+
+function states_widget_dropdown_field_widget
